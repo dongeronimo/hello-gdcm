@@ -49,7 +49,8 @@ target_link_libraries(tomographer PRIVATE
     gdcmzlib
     socketxx
 )
-    
+target_compile_features(tomographer PRIVATE cxx_std_17)
+
 add_executable(dll_example 
     include/hello-gdcm.h
     dll_example/dll_example.cpp

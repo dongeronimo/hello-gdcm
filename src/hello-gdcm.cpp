@@ -21,6 +21,7 @@
 #include "utils.h"
 #include "testHGDCM_GetNumberOfImagesInDirectory.h"
 #include <memory>
+#include <optional>
 
 const char* test_dir = "/home/luciano/.config/unity3d/DefaultCompany/unity-test-gdcm";
 //Unittests
@@ -115,15 +116,19 @@ public:
         ids->filepath = Utils::StringToCopiedCstr(this->filepath);
     }
 };
-std::vector<ImageDescription> imageDescriptionsList;
-//Essa é a fn que deve ser chamada primeiro, para inicializar a lista de imagens do diretório.
+std::optional<std::vector<ImageDescription>> gImageDescriptionList;
+/// <summary>
+/// This is the 1st function that users of the librry call. It reads the list of images
+/// in the given directory. The result is stored in gImageDescriptionList.
+/// </summary>
+/// <param name="dir"></param>
 extern "C" __declspec(dllexport) void BeginLoadingImages(const char* dir) {
     //1)Carregar as imagens do diretório e ordená-las.
     gdcm::Directory directory = GetDirectory(dir);
     std::shared_ptr<gdcm::Scanner> fileScanner = PrepareFileScanner();
     gdcm::Directory::FilenamesType files = ScanFilesOrRaiseError(fileScanner, directory);
     gdcm::Directory::FilenamesType sortedFiles = SortFilenames(files);
-    //Monta as descrições
+    //Assemble dicom descriptions
     std::vector<ImageDescription> imageDescriptions;
     imageDescriptions.resize(sortedFiles.size());
     std::transform(sortedFiles.begin(), sortedFiles.end(), imageDescriptions.begin(),
@@ -147,16 +152,20 @@ extern "C" __declspec(dllexport) void BeginLoadingImages(const char* dir) {
             ImageDescription desc = ImageDescription(name, studyUid, seriesUid, currentFile);
             return desc;
         });
-    imageDescriptionsList = imageDescriptions;
+    gImageDescriptionList = imageDescriptions;
 }
 //Essa é a que retorna o numero de imagens no diretório.
 int GetNumberOfImagesInDirectory(){
-    return imageDescriptionsList.size();
+    assert(gImageDescriptionList.has_value());
+    return (*gImageDescriptionList).size();
 }
 //Essa é a que retorna a tabela de descrições de imagens
 void GetImageDescriptionList(ImageDescriptionStruct* out_description){
+    assert(gImageDescriptionList.has_value());
     int count = 0;
-    std::for_each(imageDescriptionsList.begin(), imageDescriptionsList.end(),[&count, &out_description](ImageDescription& currentDesc){
+    std::for_each((*gImageDescriptionList).begin(), 
+        (*gImageDescriptionList).end(),
+        [&count, &out_description](ImageDescription& currentDesc){
         currentDesc.CopyDataToStruct(&out_description[count]);
         count++;
     });
