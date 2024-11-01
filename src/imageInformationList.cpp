@@ -33,7 +33,7 @@ ImageInformationLibraryOutput* AllocateNewImageInformationOutput(char* filepath,
 unsigned int GetNumberOfImages(std::string path)
 {
     gdcm::Directory directory = GetDirectory(path.c_str());
-    gdcm::Scanner fileScanner = PrepareFileScanner();
+    std::shared_ptr<gdcm::Scanner> fileScanner = PrepareFileScanner();
     gdcm::Directory::FilenamesType files = ScanFilesOrRaiseError(fileScanner, directory);
     auto sortedFiles = SortFilenames(files);
     return sortedFiles.size();
@@ -47,7 +47,7 @@ unsigned int AdaptGetNumberOfImages(const char* path)
 std::vector<ImageInformation> CreateImageInformationListFromDirectoryContents(const char* dirpath)
 {
     gdcm::Directory directory = GetDirectory(dirpath);
-    gdcm::Scanner fileScanner = PrepareFileScanner();
+    std::shared_ptr<gdcm::Scanner> fileScanner = PrepareFileScanner();
     gdcm::Directory::FilenamesType files = ScanFilesOrRaiseError(fileScanner, directory);
     auto sortedFiles = SortFilenames(files);
     std::vector<ImageInformation> imageInfoList = MapFromGdcmFilepathsToImageInformation(sortedFiles);

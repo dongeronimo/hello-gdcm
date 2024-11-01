@@ -31,7 +31,7 @@ DicomImage::DicomImage(const char* directoryPath)
 {
     gdcm::Directory d = GetDirectory(directoryPath);
     gdcm::Directory::FilenamesType l1 = GetFilenames(d);
-    gdcm::Scanner s0 = PrepareFileScanner();
+    std::shared_ptr<gdcm::Scanner> s0 = PrepareFileScanner();
     gdcm::Directory::FilenamesType l2 = ScanFilesOrRaiseError(s0, d);
     this->sorted_files = SortFilenames(l2);
     //////Reads the first file in the series to get pixel spacing, slice thickness and number of pixels

@@ -14,7 +14,7 @@ void DllContext::LoadImages(OnProgressCallback progressCallback)
 {
     //Read the directory
     gdcm::Directory directory = GetDirectory(dirPath.c_str());
-    gdcm::Scanner fileScanner = PrepareFileScanner();
+    std::shared_ptr<gdcm::Scanner> fileScanner = PrepareFileScanner();
     gdcm::Directory::FilenamesType files = ScanFilesOrRaiseError(fileScanner, directory);
     auto sortedFiles = SortFilenames(files);
     const int numberOfFiles = sortedFiles.size();

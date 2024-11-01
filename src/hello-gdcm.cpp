@@ -120,7 +120,7 @@ std::vector<ImageDescription> imageDescriptionsList;
 extern "C" __declspec(dllexport) void BeginLoadingImages(const char* dir) {
     //1)Carregar as imagens do diretório e ordená-las.
     gdcm::Directory directory = GetDirectory(dir);
-    gdcm::Scanner fileScanner = PrepareFileScanner();
+    std::shared_ptr<gdcm::Scanner> fileScanner = PrepareFileScanner();
     gdcm::Directory::FilenamesType files = ScanFilesOrRaiseError(fileScanner, directory);
     gdcm::Directory::FilenamesType sortedFiles = SortFilenames(files);
     //Monta as descrições

@@ -31,26 +31,27 @@ void dicomDirectoryTests::CanGetTheFilenames()
 }
 
 //FIXME: Unit test it
-gdcm::Scanner PrepareFileScanner()
+std::shared_ptr<gdcm::Scanner> PrepareFileScanner()
 {
-    gdcm::Scanner s0;
-    s0.AddTag( StudyInstanceUID );
-    s0.AddTag( SeriesInstanceUID );
-    s0.AddTag( PatientName );
-    s0.AddTag( DirectionCosines);
-    s0.AddTag( ImagePosition);
+    std::shared_ptr<gdcm::Scanner> s0 = std::make_shared<gdcm::Scanner>();
+    s0->AddTag( StudyInstanceUID );
+    s0->AddTag( SeriesInstanceUID );
+    s0->AddTag( PatientName );
+    s0->AddTag( DirectionCosines);
+    s0->AddTag( ImagePosition);
     return s0;
 }
 //FIXME: Unit test it
-gdcm::Directory::FilenamesType ScanFilesOrRaiseError(gdcm::Scanner& scanner, gdcm::Directory& directory)
+gdcm::Directory::FilenamesType ScanFilesOrRaiseError(std::shared_ptr<gdcm::Scanner> scanner, const gdcm::Directory& directory)
 {
-    bool b = scanner.Scan(directory.GetFilenames());
+    auto fs = directory.GetFilenames();
+    bool b = scanner->Scan(fs);
     if(!b)
     {
         throw ScanError();
     }
     else
     {
-        return scanner.GetKeys();
+        return scanner->GetKeys();
     }
 }

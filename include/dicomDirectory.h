@@ -10,7 +10,7 @@
 #include "gdcmDataSet.h"
 #include "gdcmAttribute.h"
 #include "gdcmImageReader.h"
-
+#include <memory>
 const gdcm::Tag StudyInstanceUID(0x0020,0x000d); // Study Instance UID
 const gdcm::Tag SeriesInstanceUID(0x0020,0x000e); // Series Instance UID
 const gdcm::Tag PatientName(0x0010,0x0010); // Patient's Name
@@ -23,9 +23,9 @@ const gdcm::Directory GetDirectory(const char* directoryPath);
 //Gets the filenames that exist inside the given Directory. They are unsorted and non-dicom files arent filtered.
 const gdcm::Directory::FilenamesType GetFilenames(gdcm::Directory &d);
 //Creates a file scanner aware of the Study Instance, Series Instance and Patient Name tags.
-gdcm::Scanner PrepareFileScanner();
+std::shared_ptr<gdcm::Scanner> PrepareFileScanner();
 //Scans the given directory with the given scanner. Returns the files that the scanner scans, removing non-dicom files from the file list.
-gdcm::Directory::FilenamesType ScanFilesOrRaiseError(gdcm::Scanner& scanner, gdcm::Directory& directory);
+gdcm::Directory::FilenamesType ScanFilesOrRaiseError(std::shared_ptr<gdcm::Scanner> scanner, const gdcm::Directory& directory);
 //Unittests
 
 namespace dicomDirectoryTests
