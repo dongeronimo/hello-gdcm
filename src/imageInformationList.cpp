@@ -19,7 +19,7 @@ std::array<double, 6> GetDirectionCosineFromDataset(const gdcm::DataSet& dataset
 std::string GetStudyFromDataset(const gdcm::DataSet& dataset);
 std::string GetSeriesFromDataset(const gdcm::DataSet& dataset);
 std::string GetNameFromDataset(const gdcm::DataSet& dataset);
-gdcm::Reader CreateReader(const char* path);
+gdcm::Reader* CreateReader(const char* path);
 ImageInformationLibraryOutput** AllocateListOfPointers(std::vector<ImageInformation> &info);
 char* CloneNameToNewCstr(ImageInformation &current);
 char* CloneFilepathToNewCstr(ImageInformation &current);
@@ -181,8 +181,8 @@ std::vector<ImageInformation> MapFromGdcmFilepathsToImageInformation(gdcm::Direc
     items.resize(sortedFiles.size());
     std::transform(sortedFiles.begin(), sortedFiles.end(), items.begin(),
         [](gdcm::Directory::FilenameType &filepath){
-            gdcm::Reader reader = CreateReader(filepath.c_str());
-            gdcm::File &currentFile = reader.GetFile();
+            gdcm::Reader* reader = CreateReader(filepath.c_str());
+            gdcm::File &currentFile = reader->GetFile();
             gdcm::DataSet currentDataSet = currentFile.GetDataSet();
             std::string name = GetNameFromDataset(currentDataSet);  
             std::string seriesUid = GetSeriesFromDataset(currentDataSet);
@@ -196,11 +196,11 @@ std::vector<ImageInformation> MapFromGdcmFilepathsToImageInformation(gdcm::Direc
     return items;
 }
 
-gdcm::Reader CreateReader(const char* path)
+gdcm::Reader* CreateReader(const char* path)
 {
-    gdcm::Reader reader;
-    reader.SetFileName(path);
-    bool canRead = reader.Read();
+    gdcm::Reader* reader = new gdcm::Reader();
+    reader->SetFileName(path);
+    bool canRead = reader->Read();
     if (!canRead)
     {
         throw CouldNotReadFileException(path);

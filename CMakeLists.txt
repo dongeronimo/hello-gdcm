@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1)
 project (hello-gdcm)
-set(GDCM_DIR "/home/luciano/Documents/gdcm/ubuntu-x64/result/usr/local/lib/gdcm-3.0")
+set(GDCM_DIR "${CMAKE_SOURCE_DIR}/libgdcm/lib/gdcm-3.1")
 #set(CMAKE_POSITION_INDEPENDENT_CODE ON) #Pra poder compilar com -fPIC
 
 ##   GDCM must not exist in the system libraries for me to be able to set the GDCM_PATH.
