@@ -11,3 +11,12 @@ Setup:
 
 Licence: simplified BSD license, approved by the Open Source Initiative (OSI)
 * http://www.opensource.org/licenses/bsd-license.php
+
+## Hello
+Hello exists to test and learn how to use GDCM before incorporating the functionalities into the dll. It's easier to test and debug and exe then a library, specially if the consumer of the library is something like Unity.
+
+## Tomographer
+
+The dll is the tomographer project. It generates a shared library. The idea is that all gdcm madness be hidden behind the dll's public interface and that gdcm types do not leak to the project that consumes the dll.
+
+The dll public interface is defined in hello-gdcm.h

@@ -17,7 +17,7 @@
 #include "DicomImage.h"
 #include "imageInformationList.h"
 #include "dicomDirectory.h"
-
+#include "dllContext.h"
 #include "utils.h"
 #include "testHGDCM_GetNumberOfImagesInDirectory.h"
 #include <memory>
@@ -117,7 +117,7 @@ public:
 };
 std::vector<ImageDescription> imageDescriptionsList;
 //Essa é a fn que deve ser chamada primeiro, para inicializar a lista de imagens do diretório.
-void BeginLoadingImages(const char* dir){
+extern "C" __declspec(dllexport) void BeginLoadingImages(const char* dir) {
     //1)Carregar as imagens do diretório e ordená-las.
     gdcm::Directory directory = GetDirectory(dir);
     gdcm::Scanner fileScanner = PrepareFileScanner();
