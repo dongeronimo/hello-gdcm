@@ -44,40 +44,26 @@ DicomImage::DicomImage(const char* directoryPath)
     this->imageRows = GetNumberOfRows(dataset);
     this->imageColumns = GetNumberOfColumns(dataset);
 
-    gdcm::ImageReader imageReader;
-    auto f = OpenFirstImage(this->sorted_files);
-    auto a = *sorted_files.begin();
-    imageReader.SetFileName(a.c_str());
-    if(!imageReader.Read())
-    {
-        //TODO: Throw exception
-    }
-    const gdcm::Image &gimage = imageReader.GetImage();
-    auto pixelFormat = gimage.GetPixelFormat();
-    if(pixelFormat == gdcm::PixelFormat::INT16)
-    {//Deals with short
+    int8_t* tempBuffer = new int8_t[imageRows * imageColumns * sorted_files.size() * sizeof(short)];
+    
+    for (auto i = 0; i < sorted_files.size(); i++) {
+        std::string currentFile = sorted_files.at(i);
+        gdcm::ImageReader imgReader;
+        imgReader.SetFileName(currentFile.c_str());
+        imgReader.Read();
+        const gdcm::Image& currentImage = imgReader.GetImage();
+        const gdcm::PixelFormat& format = currentImage.GetPixelFormat();
+        assert(format == gdcm::PixelFormat::INT16);//can only deal with short for now.
+        uint64_t size = currentImage.GetBufferLength();
+        std::vector<char> currentImageBuffer(size * sizeof(short));
+        currentImage.GetBuffer(currentImageBuffer.data());
         
-        std::vector<short> vbuffer;
-        vbuffer.resize(gimage.GetBufferLength());
-        gimage.GetBuffer(reinterpret_cast<char*>( vbuffer.data()));
-        std::cout<<"inicio"<<std::endl;
-        for(int i=0; i<256*256; i++){
-            std::cout<<vbuffer[i]<<std::endl;
-        }
-        std::cout<<"fim"<<std::endl;
+        memcpy(tempBuffer + i * size, currentImageBuffer.data(), size);
     }
-    else
-    {
-        throw "can only deal with INT16 for now";
-    }    
-    /*
-    auto c = gimage.GetColumns();
-    auto r = gimage.GetRows();
-    auto bl = gimage.GetBufferLength();
-    auto pf = gimage.GetPixelFormat();
-    std::cout<<bl / (c*r)<<std::endl;
-    std::cout<<"pf = "<<pf<<std::endl;
-    */
+    this->imageData.resize(imageRows * imageRows * sorted_files.size());
+    char* destination = reinterpret_cast<char*>(imageData.data());
+    memcpy(destination, tempBuffer, imageRows * imageColumns * sorted_files.size() * sizeof(short));
+    delete tempBuffer;
 }
 unsigned int GetNumberOfRows(const gdcm::DataSet &dataset)
 {

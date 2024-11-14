@@ -1,6 +1,7 @@
 #ifndef __dicom_image_h
 #define __dicom_image_h
 #include "gdcmScanner.h"
+#include <vector>
 class DicomImage 
 {
 private:
@@ -10,6 +11,7 @@ private:
     double sliceThickness;
     unsigned int imageRows;
     unsigned int imageColumns;
+    std::vector<short> imageData;
 public:
     DicomImage(const char* directory);
     unsigned int NumberOfFiles(){return this->sorted_files.size();}
@@ -18,5 +20,6 @@ public:
     double SliceThickness(){return this->sliceThickness;}
     unsigned int ImageRows(){return this->imageRows;}
     unsigned int ImageColumns(){return this->imageColumns;}
+    short* Data() { return imageData.data(); }
 };
 #endif

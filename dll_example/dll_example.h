@@ -2,17 +2,36 @@
 #include <Windows.h>
 #include <cassert>
 #include <stdio.h>
+#include <stdint.h>
 #define WIN32_LEAN_AND_MEAN
-//void BeginLoadingImages(const char* dir);
-typedef void (*_begin_loading_images_t)(const char* directory);
 
+/// <summary>
+/// this namespace holds the function pointers for the dll functions.
+/// They are loaded using InitializeFunctions.
+/// </summary>
 namespace tomographer
 {
-    static _begin_loading_images_t BeginLoadingImages = nullptr;
+    struct LoadDicomImageResult {
+        uint32_t numberOfFiles;
+        float spacingX;
+        float spacingY;
+        float thickness;
+        uint32_t rows;
+        uint32_t cols;
+        short* data;
+    };
+    typedef LoadDicomImageResult(*load_dicom_image_t)(const char* dir);
+
+    load_dicom_image_t LoadDicomImage;
+}
+template <typename t>
+t LoadFN(HMODULE _module, const char* name) {
+    t ptr = (t)GetProcAddress(_module, name);
+    assert(ptr != nullptr);
+    return ptr;
 }
 void InitializeFunctions() {
     HMODULE m = LoadLibrary("C:\\hello_gdcm\\hello-gdcm\\build\\Debug\\tomographer.dll");
     assert(m != 0);
-    auto result = tomographer::BeginLoadingImages = (_begin_loading_images_t)GetProcAddress(m, "BeginLoadingImages");
-    assert(tomographer::BeginLoadingImages != nullptr);
+    tomographer::LoadDicomImage = LoadFN<tomographer::load_dicom_image_t>(m, "LoadDicomImage");
 }

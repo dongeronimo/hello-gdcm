@@ -23,6 +23,35 @@
 #include <memory>
 #include <optional>
 
+std::unique_ptr<DicomImage> gDicomImage = nullptr;
+struct LoadDicomImageResult {
+    uint32_t numberOfFiles;
+    float spacingX;
+    float spacingY;
+    float thickness;
+    uint32_t rows;
+    uint32_t cols;
+    short* data;
+};
+/// <summary>
+/// Load a image using the slices in the given folder. It assumes that the dicoms are for volumetric
+/// data. It also assumes that their data is of short type.
+/// 
+/// There can be only one dicom loaded at a given time. If you call this function again the previous 
+/// dicom will be discarded and the data pointer will be invalid.
+/// </summary>
+/// <param name="directoryStr"></param>
+/// <returns></returns>
+extern "C" __declspec(dllexport) LoadDicomImageResult LoadDicomImage(const char* directoryStr) {
+    gDicomImage = std::make_unique<DicomImage>(directoryStr);
+    LoadDicomImageResult result{
+        gDicomImage->NumberOfFiles(), gDicomImage->PixelSpacingX(),
+        gDicomImage->PixelSpacingY(), gDicomImage->SliceThickness(),
+        gDicomImage->ImageRows(), gDicomImage->ImageColumns(),
+        gDicomImage->Data()//It's size is wrong
+    };
+}
+
 const char* test_dir = "/home/luciano/.config/unity3d/DefaultCompany/unity-test-gdcm";
 //Unittests
 
@@ -154,13 +183,16 @@ extern "C" __declspec(dllexport) void BeginLoadingImages(const char* dir) {
         });
     gImageDescriptionList = imageDescriptions;
 }
-//Essa é a que retorna o numero de imagens no diretório.
-int GetNumberOfImagesInDirectory(){
+/// <summary>
+/// Returns how many images there are in the directory.
+/// </summary>
+/// <returns></returns>
+extern "C" __declspec(dllexport) int GetNumberOfImagesInDirectory(){
     assert(gImageDescriptionList.has_value());
     return (*gImageDescriptionList).size();
 }
 //Essa é a que retorna a tabela de descrições de imagens
-void GetImageDescriptionList(ImageDescriptionStruct* out_description){
+extern "C" __declspec(dllexport) void GetImageDescriptionList(ImageDescriptionStruct* out_description){
     assert(gImageDescriptionList.has_value());
     int count = 0;
     std::for_each((*gImageDescriptionList).begin(), 
