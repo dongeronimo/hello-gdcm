@@ -3,6 +3,11 @@ A dicom loader using gdcm
 Originally created to load dicoms for an android Unity app, will probably load dicoms anywhere else.
 
 Setup:
+1) Run setup_dependencies.py. It should fetch and build the dependencies.
+2) Run setup_project.py. It should at least generate the project (at ./build)
+
+OR
+
 1) clone the repo
 2) init submodules because gdcm is a submodule
 3) use cmake to build gdcm: i use as binary destination ./GDCM-build and as install dir ./libgdcm (that's why these paths are in gitignore)
